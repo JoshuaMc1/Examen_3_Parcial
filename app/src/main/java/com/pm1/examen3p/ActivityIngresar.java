@@ -1,0 +1,161 @@
+package com.pm1.examen3p;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.pm1.examen3p.Clases.Medicamentos;
+
+import java.io.ByteArrayOutputStream;
+
+public class ActivityIngresar extends AppCompatActivity {
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private CollectionReference collectionReference;
+    ImageView producto, atras;
+    TextView titulo;
+    EditText txtDescripcion, txtCantidad, txtPeriocidad;
+    Spinner tiempo;
+    Button btnTomarFoto, btnGuardar;
+    String opcion[] = {"Seleccione una opción", "Horas", "Diarias"};
+    Bitmap imageBitmap = null;
+    Medicamentos medicamentos;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_ingresar);
+        init();
+        btnTomarFoto.setOnClickListener(this::onClickTomarFoto);
+        atras.setOnClickListener(this::onClickAtras);
+        btnGuardar.setOnClickListener(this::onClickGuardar);
+        tiempo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 1) {
+                    txtPeriocidad.setText("");
+                    txtPeriocidad.setVisibility(View.VISIBLE);
+                    titulo.setVisibility(View.VISIBLE);
+                } else {
+                    txtPeriocidad.setVisibility(View.INVISIBLE);
+                    titulo.setVisibility(View.INVISIBLE);
+                    txtPeriocidad.setText("0");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void onClickGuardar(View view) {
+        if (campoVacio(txtCantidad) && campoVacio(txtDescripcion) && imageBitmap != null && tiempo.getSelectedItemId() != 0){
+            guardar();
+        } else message("Hay campos vacios...");
+    }
+
+    private void guardar() {
+        try {
+            collectionReference = FirebaseFirestore.getInstance().collection("Medicamentos");
+            DocumentReference documentReference = collectionReference.document();
+            String id = documentReference.getId();
+            medicamentos = new Medicamentos();
+            medicamentos.setKey(id);
+            medicamentos.setId_medicamento(getFiveDigitsNumber());
+            medicamentos.setDescripcion(txtDescripcion.getText().toString());
+            medicamentos.setCantidad(Integer.parseInt(txtCantidad.getText().toString()));
+            medicamentos.setTiempo(tiempo.getSelectedItem().toString());
+            medicamentos.setPeriocidad(Integer.parseInt(txtPeriocidad.getText().toString()));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            byte[] byteArray = outputStream.toByteArray();
+            medicamentos.setImagen(Base64.encodeToString(byteArray, Base64.DEFAULT));
+            collectionReference.document(id).set(medicamentos).addOnSuccessListener(unused -> {
+                message("Datos Guardados");
+                limpiarCampos();
+            }).addOnFailureListener(e -> message("Error al guardar: " + e.getMessage()));
+        } catch (Exception ex) {
+            message("Error: " + ex.getMessage());
+        }
+    }
+
+    private void onClickAtras(View view) {
+        Intent atras = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(atras);
+        finish();
+    }
+
+    private void onClickTomarFoto(View view) {
+        dispatchTakePictureIntent();
+    }
+
+    private void init(){
+        producto = findViewById(R.id.txtRImagen);
+        atras = findViewById(R.id.btnLAtras);
+        titulo = findViewById(R.id.txtRTPeriosidad);
+        txtDescripcion = findViewById(R.id.txtRDescripcion);
+        txtCantidad = findViewById(R.id.txtRCantidad);
+        txtPeriocidad = findViewById(R.id.txtRPeriocidad);
+        tiempo = findViewById(R.id.txtRTiempo);
+        btnTomarFoto = findViewById(R.id.btnRTomarFoto);
+        btnGuardar = findViewById(R.id.btnRGuardar);
+        ArrayAdapter<String> tiempoOpciones = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item, opcion);
+        tiempo.setAdapter(tiempoOpciones);
+        txtPeriocidad.setVisibility(View.INVISIBLE);
+        titulo.setVisibility(View.INVISIBLE);
+        txtPeriocidad.setText("0");
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            imageBitmap = (Bitmap) extras.get("data");
+            producto.setImageBitmap(imageBitmap);
+        }
+    }
+
+    public boolean campoVacio(EditText objeto) {
+        return objeto.getText().length() > 0 ? true : false;
+    }
+
+    public void limpiarCampos() {
+        txtPeriocidad.setText("");
+        txtDescripcion.setText("");
+        txtCantidad.setText("");
+        tiempo.setSelection(0);
+        producto.setImageBitmap(null);
+    }
+
+    public int getFiveDigitsNumber() {
+        double fiveDigits = 1000000 + Math.random() * 9000000;
+        return (int) fiveDigits;
+    }
+
+    public void message(String msg){
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+}

@@ -3,6 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.pm1.examen3p">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +20,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Examen3P"
         tools:targetApi="31">
+        <activity
+            android:name=".ActivityAcciones"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityListar"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityIngresar"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
