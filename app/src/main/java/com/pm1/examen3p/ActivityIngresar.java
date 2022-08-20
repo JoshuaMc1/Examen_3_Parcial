@@ -1,9 +1,17 @@
 package com.pm1.examen3p;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -27,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 public class ActivityIngresar extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private CollectionReference collectionReference;
+    private final String CHANNEL_ID = "canal";
     ImageView producto, atras;
     TextView titulo;
     EditText txtDescripcion, txtCantidad, txtPeriocidad;
@@ -86,7 +95,7 @@ public class ActivityIngresar extends AppCompatActivity {
             byte[] byteArray = outputStream.toByteArray();
             medicamentos.setImagen(Base64.encodeToString(byteArray, Base64.DEFAULT));
             collectionReference.document(id).set(medicamentos).addOnSuccessListener(unused -> {
-                message("Datos Guardados");
+                mostrarNotificacion("Guardado", "Datos Guardados");
                 limpiarCampos();
             }).addOnFailureListener(e -> message("Error al guardar: " + e.getMessage()));
         } catch (Exception ex) {
@@ -157,5 +166,28 @@ public class ActivityIngresar extends AppCompatActivity {
 
     public void message(String msg){
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    public void mostrarNotificacion(String titulo, String cuerpo){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                    "Nueva", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            manager.createNotificationChannel(channel);
+            notification(titulo, cuerpo);
+        }
+    }
+
+    public void notification(String titulo, String cuerpo){
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
+                CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle(titulo)
+                .setContentText(cuerpo)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setSound(uri);
+        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(getApplicationContext());
+        managerCompat.notify(1, builder.build());
     }
 }

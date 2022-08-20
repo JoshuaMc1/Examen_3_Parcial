@@ -1,12 +1,17 @@
 package com.pm1.examen3p;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -20,17 +25,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.pm1.examen3p.Clases.Medicamentos;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
 public class ActivityAcciones extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    private final String CHANNEL_ID = "canal";
     int idProducto;
     String key;
     ImageView producto, atras;
@@ -86,7 +89,7 @@ public class ActivityAcciones extends AppCompatActivity {
             map.put("imagen", Base64.encodeToString(byteArray, Base64.DEFAULT));
             CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Medicamentos");
             collectionReference.document(key).update(map).addOnSuccessListener(unused -> {
-                message("Registro actualizado con exito");
+                mostrarNotificacion("Registro actualizado", "Registro actualizado con exito");
                 lista();
             }).addOnFailureListener(e -> message("Error al actualizar el medicamento\n" + e.getMessage()));
         } catch (Exception ex) {
@@ -102,7 +105,7 @@ public class ActivityAcciones extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("Si, deseo eliminar", (dialog, id) -> {
                     CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Medicamentos");
-                    collectionReference.document(key).delete().addOnSuccessListener(unused -> message("Registro eliminado con exito")
+                    collectionReference.document(key).delete().addOnSuccessListener(unused -> mostrarNotificacion("Eliminado", "Registro eliminado con exito")
                     ).addOnFailureListener(e -> message("Error al eliminar el medicamento\n" + e.getMessage()));
                     lista();
                 })
@@ -184,5 +187,28 @@ public class ActivityAcciones extends AppCompatActivity {
 
     public void message(String msg){
         Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    public void mostrarNotificacion(String titulo, String cuerpo){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                    "Nueva", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            manager.createNotificationChannel(channel);
+            notification(titulo, cuerpo);
+        }
+    }
+
+    public void notification(String titulo, String cuerpo){
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
+                CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle(titulo)
+                .setContentText(cuerpo)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setSound(uri);
+        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(getApplicationContext());
+        managerCompat.notify(1, builder.build());
     }
 }
