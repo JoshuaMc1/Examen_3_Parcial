@@ -1,4 +1,4 @@
-# Examen_3_Parcial
+# Examen del 3 Parcial
 Examen del tercer parcial, Programación movil 1
 
 ## Integrantes
