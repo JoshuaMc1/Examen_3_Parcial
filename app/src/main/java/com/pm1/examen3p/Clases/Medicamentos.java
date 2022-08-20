@@ -12,16 +12,6 @@ public class Medicamentos {
     public Medicamentos() {
     }
 
-    public Medicamentos(int id_medicamento, String key, String descripcion, int cantidad, String tiempo, int periocidad, String imagen) {
-        this.id_medicamento = id_medicamento;
-        this.key = key;
-        this.descripcion = descripcion;
-        this.cantidad = cantidad;
-        this.tiempo = tiempo;
-        this.periocidad = periocidad;
-        this.imagen = imagen;
-    }
-
     public int getId_medicamento() {
         return id_medicamento;
     }

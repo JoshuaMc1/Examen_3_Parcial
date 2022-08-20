@@ -182,7 +182,7 @@ public class ActivityIngresar extends AppCompatActivity {
         Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
                 CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle(titulo)
                 .setContentText(cuerpo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

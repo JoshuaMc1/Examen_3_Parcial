@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Examen3P</string>
     <string name="imagen_del_producto">Imagen del producto</string>
+    <string name="msg_token_fmt">Token</string>
 </resources>

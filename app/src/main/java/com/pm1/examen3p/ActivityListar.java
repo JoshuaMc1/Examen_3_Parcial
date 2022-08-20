@@ -2,15 +2,10 @@ package com.pm1.examen3p;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -20,7 +15,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.pm1.examen3p.Adaptador.Adaptador;
 import com.pm1.examen3p.Clases.Medicamentos;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class ActivityListar extends AppCompatActivity {

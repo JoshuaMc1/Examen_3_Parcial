@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1047956113717",
+    "firebase_url": "https://examen3p-8156e-default-rtdb.firebaseio.com",
+    "project_id": "examen3p-8156e",
+    "storage_bucket": "examen3p-8156e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1047956113717:android:f734b21d60c9e9ffd7a47c",
+        "android_client_info": {
+          "package_name": "com.pm1.examen3p"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1047956113717-4vpf9s40pr22nhv3snnht1b2btia5mva.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCapAgXM1DEJ8yIFZ4KLeKFEWD8cVVgPHo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1047956113717-4vpf9s40pr22nhv3snnht1b2btia5mva.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
