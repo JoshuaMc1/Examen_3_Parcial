@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -43,6 +45,9 @@ public class ActivityIngresar extends AppCompatActivity {
     String opcion[] = {"Seleccione una opción", "Horas", "Diarias"};
     Bitmap imageBitmap = null;
     Medicamentos medicamentos;
+
+    NotificationManagerCompat notificationManagerCompat;
+    Notification notification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,10 +98,31 @@ public class ActivityIngresar extends AppCompatActivity {
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             byte[] byteArray = outputStream.toByteArray();
             medicamentos.setImagen(Base64.encodeToString(byteArray, Base64.DEFAULT));
+
+            if (tiempo.getSelectedItem().toString().equals("Diaria")) {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(ActivityIngresar.this, "Medicamentos")
+                        .setSmallIcon(R.drawable.ic_launcher_background)
+                        .setContentTitle("MEDICAMENTO: " + txtDescripcion.getText().toString().toUpperCase())
+                        .setContentText("NO OLVIDES TOMAR TU MEDICAMENTO DIARIAMENTE");
+
+                notification = builder.build();
+                notificationManagerCompat = NotificationManagerCompat.from(ActivityIngresar.this);
+            }
+            else {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(ActivityIngresar.this, "Medicamentos")
+                        .setSmallIcon(R.drawable.ic_launcher_background)
+                        .setContentTitle("MEDICAMENTO: " + txtDescripcion.getText().toString().toUpperCase())
+                        .setContentText("NO OLVIDES TOMAR TU MEDICAMENTO CADA " + txtPeriocidad.getText().toString() + " HORAS");
+
+                notification = builder.build();
+                notificationManagerCompat = NotificationManagerCompat.from(ActivityIngresar.this);
+            }
             collectionReference.document(id).set(medicamentos).addOnSuccessListener(unused -> {
                 mostrarNotificacion("Guardado", "Datos Guardados");
                 limpiarCampos();
             }).addOnFailureListener(e -> message("Error al guardar: " + e.getMessage()));
+
+            Notify();
         } catch (Exception ex) {
             message("Error: " + ex.getMessage());
         }
@@ -110,6 +136,9 @@ public class ActivityIngresar extends AppCompatActivity {
 
     private void onClickTomarFoto(View view) {
         dispatchTakePictureIntent();
+    }
+    private void Notify() {
+        notificationManagerCompat.notify(1, notification);
     }
 
     private void init(){
@@ -127,6 +156,12 @@ public class ActivityIngresar extends AppCompatActivity {
         txtPeriocidad.setVisibility(View.INVISIBLE);
         titulo.setVisibility(View.INVISIBLE);
         txtPeriocidad.setText("0");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("Medicamentos", "Medicamentos", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
     }
 
     private void dispatchTakePictureIntent() {
