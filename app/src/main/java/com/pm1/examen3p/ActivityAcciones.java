@@ -7,6 +7,7 @@ import androidx.core.app.NotificationManagerCompat;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -201,14 +202,19 @@ public class ActivityAcciones extends AppCompatActivity {
 
     public void notification(String titulo, String cuerpo){
         Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Intent intent = new Intent(this, ActivityListar.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
                 CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_nofication)
                 .setContentTitle(titulo)
                 .setContentText(cuerpo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setSound(uri);
+                .setSound(uri)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .addAction(R.drawable.ic_close_nofication, "Cerrar", pendingIntent);
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(getApplicationContext());
-        managerCompat.notify(1, builder.build());
+        managerCompat.notify(3, builder.build());
     }
 }

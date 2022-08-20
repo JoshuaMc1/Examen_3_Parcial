@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -180,14 +179,19 @@ public class ActivityIngresar extends AppCompatActivity {
 
     public void notification(String titulo, String cuerpo){
         Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Intent intent = new Intent(this, ActivityIngresar.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(),
                 CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_nofication)
                 .setContentTitle(titulo)
                 .setContentText(cuerpo)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setSound(uri);
+                .setSound(uri)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .addAction(R.drawable.ic_close_nofication, "Cerrar", pendingIntent);
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(getApplicationContext());
-        managerCompat.notify(1, builder.build());
+        managerCompat.notify(2, builder.build());
     }
 }
